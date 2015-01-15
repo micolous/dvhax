@@ -17,7 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import argparse, struct
+import argparse
 # python-enum34
 from enum import Enum
 
