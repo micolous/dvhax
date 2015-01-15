@@ -5,7 +5,7 @@ from dvhax import FrameAspectRatio, DV_PACK_SIZE, DV_BLOCK_SIZE, DV_SEQUENCE_SIZ
 from os import SEEK_CUR, SEEK_END
 
 
-def arpatch(dv_file, aspect_ratio):
+def arpatch(dv_file, aspect_ratio, all_instances=False):
 	print 'Patching AR to %s' % (aspect_ratio.name,)
 
 	# Find a header to check we're OK
@@ -49,6 +49,11 @@ def arpatch(dv_file, aspect_ratio):
 				# drop out
 				offset = dv_file.tell() - 1
 				print 'Patched AR at %d bytes (0x%X)' % (offset, offset,)
+				if not all_instances:
+					dv_file.flush()
+					dv_file.close()
+					return
+				dv_file.seek(2, SEEK_CUR)
 			else:
 				dv_file.seek(DV_PACK_SIZE - 1, SEEK_CUR)
 			
@@ -68,10 +73,11 @@ def main():
 		type=argparse.FileType('r+b')
 	)
 	parser.add_argument('--ar', required=True, help='Aspect ratio to set')
+	parser.add_argument('--all', action='store_true', help='Patch all AR fields (dangerous)')
 	options = parser.parse_args()
 	
 	ar = FrameAspectRatio[options.ar]
-	arpatch(options.dvfile[0], ar)
+	arpatch(options.dvfile[0], ar, options.all)
 
 
 if __name__ == '__main__':
